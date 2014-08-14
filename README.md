@@ -12,6 +12,11 @@ go get github.com/mkroli/share
 ```
 
 ## Usage
+```
+Usage: share [file]...
+  -host="desktop": the host to bind to
+  -port="8080": the port to bind to
+```
 
 ### Server mode
 The first time a users starts share it'll run in server mode.
