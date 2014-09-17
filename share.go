@@ -59,6 +59,7 @@ var host, port string
 
 func main() {
 	defer printError()
+	var index bool
 	hostname, err := os.Hostname()
 	panicOnError(err)
 	flag.Usage = func() {
@@ -67,6 +68,7 @@ func main() {
 	}
 	flag.StringVar(&host, "host", hostname, "the host to bind to")
 	flag.StringVar(&port, "port", "8080", "the port to bind to")
+	flag.BoolVar(&index, "index", false, "show list of all shared files")
 	flag.Parse()
 
 	username, err := user.Current()
@@ -76,7 +78,7 @@ func main() {
 	l, err := net.ListenUnix("unix", addr)
 	if err == nil {
 		defer l.Close()
-		server(l, port)
+		server(l, port, index)
 	} else {
 		client(addr)
 	}

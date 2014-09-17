@@ -18,11 +18,13 @@ package main
 import (
 	"bufio"
 	"flag"
+	"html/template"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -48,6 +50,22 @@ func handleIpcConnection(conn net.Conn) {
 	}
 }
 
+var indexTemplate, _ = template.New("index").Parse(indexTpl)
+
+func handleIndexHttpRequest(w http.ResponseWriter, r *http.Request) {
+	filesMutex.Lock()
+	defer filesMutex.Unlock()
+
+	links := make([]string, len(files))
+	i := 0
+	for l, _ := range files {
+		links[i] = l
+		i++
+	}
+	sort.Strings(links)
+	indexTemplate.Execute(w, links)
+}
+
 func handleHttpRequest(w http.ResponseWriter, r *http.Request) {
 	filesMutex.Lock()
 	defer filesMutex.Unlock()
@@ -60,7 +78,17 @@ func handleHttpRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func server(l *net.UnixListener, httpPort string) {
+func handlerFactory(index bool) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/" && index {
+			handleIndexHttpRequest(w, r)
+		} else {
+			handleHttpRequest(w, r)
+		}
+	}
+}
+
+func server(l *net.UnixListener, httpPort string, index bool) {
 	signalChan := make(chan os.Signal)
 	signal.Notify(signalChan, os.Kill, os.Interrupt)
 	go func() {
@@ -85,7 +113,7 @@ func server(l *net.UnixListener, httpPort string) {
 		}
 	}()
 
-	http.HandleFunc("/", handleHttpRequest)
+	http.HandleFunc("/", handlerFactory(index))
 	err := http.ListenAndServe(":"+httpPort, nil)
 	panicOnError(err)
 }
