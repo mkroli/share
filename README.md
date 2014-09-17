@@ -14,7 +14,8 @@ go get github.com/mkroli/share
 ## Usage
 ```
 Usage: share [file]...
-  -host="desktop": the host to bind to
+  -host="host": the host to bind to
+  -index=false: show list of all shared files
   -port="8080": the port to bind to
 ```
 
