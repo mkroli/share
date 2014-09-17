@@ -68,9 +68,9 @@ func handleIndexHttpRequest(w http.ResponseWriter, r *http.Request) {
 
 func handleHttpRequest(w http.ResponseWriter, r *http.Request) {
 	filesMutex.Lock()
-	defer filesMutex.Unlock()
-
 	filename, ok := files[r.URL.Path[1:]]
+	filesMutex.Unlock()
+
 	if ok {
 		http.ServeFile(w, r, filename)
 	} else {
