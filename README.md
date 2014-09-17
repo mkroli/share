@@ -5,7 +5,7 @@ share makes local files available via http.
 
 ## Installation
 
-Either [Download binary (Linux x86_64)](https://github.com/mkroli/share/releases/download/0.1/share)
+Either [Download binary (Linux x86_64)](https://github.com/mkroli/share/releases/download/0.2/share)
 or build it:
 ```sh
 go get github.com/mkroli/share
